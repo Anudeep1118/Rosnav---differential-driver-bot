@@ -1,0 +1,83 @@
+[0.000000] (-) TimerEvent: {}
+[0.001214] (rosnav_driver) JobQueued: {'identifier': 'rosnav_driver', 'dependencies': OrderedDict()}
+[0.001434] (rosnav_driver) JobStarted: {'identifier': 'rosnav_driver'}
+[0.097965] (-) TimerEvent: {}
+[0.198628] (-) TimerEvent: {}
+[0.299268] (-) TimerEvent: {}
+[0.399885] (-) TimerEvent: {}
+[0.500515] (-) TimerEvent: {}
+[0.601070] (-) TimerEvent: {}
+[0.701649] (-) TimerEvent: {}
+[0.802223] (-) TimerEvent: {}
+[0.902816] (-) TimerEvent: {}
+[1.003501] (-) TimerEvent: {}
+[1.104344] (-) TimerEvent: {}
+[1.205077] (-) TimerEvent: {}
+[1.305718] (-) TimerEvent: {}
+[1.406397] (-) TimerEvent: {}
+[1.507031] (-) TimerEvent: {}
+[1.607622] (-) TimerEvent: {}
+[1.708221] (-) TimerEvent: {}
+[1.808808] (-) TimerEvent: {}
+[1.909446] (-) TimerEvent: {}
+[2.010056] (-) TimerEvent: {}
+[2.110674] (-) TimerEvent: {}
+[2.211320] (-) TimerEvent: {}
+[2.311894] (-) TimerEvent: {}
+[2.412582] (-) TimerEvent: {}
+[2.507902] (rosnav_driver) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', '../../build/rosnav_driver', 'build', '--build-base', '/home/anudeep/rosnav/ros2_ws/build/rosnav_driver/build', 'install', '--record', '/home/anudeep/rosnav/ros2_ws/build/rosnav_driver/install.log', '--single-version-externally-managed', 'install_data'], 'cwd': '/home/anudeep/rosnav/ros2_ws/src/rosnav_driver', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'USER': 'anudeep', 'SSH_CLIENT': '10.75.100.76 63221 22', 'XDG_SESSION_TYPE': 'tty', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/aarch64-linux-gnu:/opt/ros/humble/lib', 'MOTD_SHOWN': 'pam', 'HOME': '/home/anudeep', 'OLDPWD': '/home/anudeep/rosnav/ros2_ws', 'SSH_TTY': '/dev/pts/0', 'ROS_PYTHON_VERSION': '3', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'COLCON_PREFIX_PATH': '/home/anudeep/rosnav/ros2_ws/install', 'ROS_DISTRO': 'humble', 'LOGNAME': 'anudeep', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_SESSION_CLASS': 'user', 'TERM': 'xterm-256color', 'XDG_SESSION_ID': '1', 'ROS_LOCALHOST_ONLY': '0', 'PATH': '/home/anudeep/.local/bin:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin', 'XDG_RUNTIME_DIR': '/run/user/1000', 'LANG': 'C.UTF-8', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'AMENT_PREFIX_PATH': '/home/anudeep/rosnav/ros2_ws/install/rosnav_driver:/opt/ros/humble', 'SHELL': '/bin/bash', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'PWD': '/home/anudeep/rosnav/ros2_ws/build/rosnav_driver', 'SSH_CONNECTION': '10.75.100.76 63221 10.75.100.214 22', 'XDG_DATA_DIRS': '/usr/local/share:/usr/share:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/anudeep/rosnav/ros2_ws/build/rosnav_driver/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/anudeep/rosnav/ros2_ws/install/rosnav_driver/lib/python3.10/site-packages:/home/anudeep/rosnav/ros2_ws/install/rosnav_driver/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'COLCON': '1'}, 'shell': False}
+[2.519182] (-) TimerEvent: {}
+[2.622181] (-) TimerEvent: {}
+[2.722859] (-) TimerEvent: {}
+[2.823541] (-) TimerEvent: {}
+[2.924263] (-) TimerEvent: {}
+[3.024836] (-) TimerEvent: {}
+[3.125412] (-) TimerEvent: {}
+[3.226033] (-) TimerEvent: {}
+[3.326639] (-) TimerEvent: {}
+[3.427530] (-) TimerEvent: {}
+[3.439511] (rosnav_driver) StdoutLine: {'line': b'running egg_info\n'}
+[3.441793] (rosnav_driver) StdoutLine: {'line': b'creating ../../build/rosnav_driver/rosnav_driver.egg-info\n'}
+[3.442464] (rosnav_driver) StdoutLine: {'line': b'writing ../../build/rosnav_driver/rosnav_driver.egg-info/PKG-INFO\n'}
+[3.443670] (rosnav_driver) StdoutLine: {'line': b'writing dependency_links to ../../build/rosnav_driver/rosnav_driver.egg-info/dependency_links.txt\n'}
+[3.444309] (rosnav_driver) StdoutLine: {'line': b'writing entry points to ../../build/rosnav_driver/rosnav_driver.egg-info/entry_points.txt\n'}
+[3.444841] (rosnav_driver) StdoutLine: {'line': b'writing requirements to ../../build/rosnav_driver/rosnav_driver.egg-info/requires.txt\n'}
+[3.445342] (rosnav_driver) StdoutLine: {'line': b'writing top-level names to ../../build/rosnav_driver/rosnav_driver.egg-info/top_level.txt\n'}
+[3.446093] (rosnav_driver) StdoutLine: {'line': b"writing manifest file '../../build/rosnav_driver/rosnav_driver.egg-info/SOURCES.txt'\n"}
+[3.452216] (rosnav_driver) StdoutLine: {'line': b"reading manifest file '../../build/rosnav_driver/rosnav_driver.egg-info/SOURCES.txt'\n"}
+[3.455189] (rosnav_driver) StdoutLine: {'line': b"writing manifest file '../../build/rosnav_driver/rosnav_driver.egg-info/SOURCES.txt'\n"}
+[3.455858] (rosnav_driver) StdoutLine: {'line': b'running build\n'}
+[3.456277] (rosnav_driver) StdoutLine: {'line': b'running build_py\n'}
+[3.456689] (rosnav_driver) StdoutLine: {'line': b'creating /home/anudeep/rosnav/ros2_ws/build/rosnav_driver/build\n'}
+[3.457185] (rosnav_driver) StdoutLine: {'line': b'creating /home/anudeep/rosnav/ros2_ws/build/rosnav_driver/build/lib\n'}
+[3.457596] (rosnav_driver) StdoutLine: {'line': b'creating /home/anudeep/rosnav/ros2_ws/build/rosnav_driver/build/lib/rosnav_driver\n'}
+[3.457905] (rosnav_driver) StdoutLine: {'line': b'copying rosnav_driver/__init__.py -> /home/anudeep/rosnav/ros2_ws/build/rosnav_driver/build/lib/rosnav_driver\n'}
+[3.458364] (rosnav_driver) StdoutLine: {'line': b'copying rosnav_driver/serial_bridge.py -> /home/anudeep/rosnav/ros2_ws/build/rosnav_driver/build/lib/rosnav_driver\n'}
+[3.458881] (rosnav_driver) StdoutLine: {'line': b'copying rosnav_driver/waypoint_nav.py -> /home/anudeep/rosnav/ros2_ws/build/rosnav_driver/build/lib/rosnav_driver\n'}
+[3.459925] (rosnav_driver) StdoutLine: {'line': b'running install\n'}
+[3.461141] (rosnav_driver) StdoutLine: {'line': b'running install_lib\n'}
+[3.464663] (rosnav_driver) StdoutLine: {'line': b'creating /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/lib/python3.10/site-packages/rosnav_driver\n'}
+[3.465212] (rosnav_driver) StdoutLine: {'line': b'copying /home/anudeep/rosnav/ros2_ws/build/rosnav_driver/build/lib/rosnav_driver/__init__.py -> /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/lib/python3.10/site-packages/rosnav_driver\n'}
+[3.465825] (rosnav_driver) StdoutLine: {'line': b'copying /home/anudeep/rosnav/ros2_ws/build/rosnav_driver/build/lib/rosnav_driver/serial_bridge.py -> /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/lib/python3.10/site-packages/rosnav_driver\n'}
+[3.466654] (rosnav_driver) StdoutLine: {'line': b'copying /home/anudeep/rosnav/ros2_ws/build/rosnav_driver/build/lib/rosnav_driver/waypoint_nav.py -> /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/lib/python3.10/site-packages/rosnav_driver\n'}
+[3.469060] (rosnav_driver) StdoutLine: {'line': b'byte-compiling /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/lib/python3.10/site-packages/rosnav_driver/__init__.py to __init__.cpython-310.pyc\n'}
+[3.470419] (rosnav_driver) StdoutLine: {'line': b'byte-compiling /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/lib/python3.10/site-packages/rosnav_driver/serial_bridge.py to serial_bridge.cpython-310.pyc\n'}
+[3.475740] (rosnav_driver) StdoutLine: {'line': b'byte-compiling /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/lib/python3.10/site-packages/rosnav_driver/waypoint_nav.py to waypoint_nav.cpython-310.pyc\n'}
+[3.479019] (rosnav_driver) StdoutLine: {'line': b'running install_data\n'}
+[3.479584] (rosnav_driver) StdoutLine: {'line': b'creating /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/share/ament_index\n'}
+[3.480115] (rosnav_driver) StdoutLine: {'line': b'creating /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/share/ament_index/resource_index\n'}
+[3.480542] (rosnav_driver) StdoutLine: {'line': b'creating /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/share/ament_index/resource_index/packages\n'}
+[3.480958] (rosnav_driver) StdoutLine: {'line': b'copying resource/rosnav_driver -> /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/share/ament_index/resource_index/packages\n'}
+[3.481333] (rosnav_driver) StdoutLine: {'line': b'copying package.xml -> /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/share/rosnav_driver\n'}
+[3.481781] (rosnav_driver) StdoutLine: {'line': b'running install_egg_info\n'}
+[3.488567] (rosnav_driver) StdoutLine: {'line': b'Copying ../../build/rosnav_driver/rosnav_driver.egg-info to /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/lib/python3.10/site-packages/rosnav_driver-1.0.0-py3.10.egg-info\n'}
+[3.493530] (rosnav_driver) StdoutLine: {'line': b'running install_scripts\n'}
+[3.527691] (-) TimerEvent: {}
+[3.570268] (rosnav_driver) StdoutLine: {'line': b'Installing serial_bridge script to /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/lib/rosnav_driver\n'}
+[3.570943] (rosnav_driver) StdoutLine: {'line': b'Installing waypoint_nav script to /home/anudeep/rosnav/ros2_ws/install/rosnav_driver/lib/rosnav_driver\n'}
+[3.572304] (rosnav_driver) StdoutLine: {'line': b"writing list of installed files to '/home/anudeep/rosnav/ros2_ws/build/rosnav_driver/install.log'\n"}
+[3.627936] (-) TimerEvent: {}
+[3.686144] (rosnav_driver) CommandEnded: {'returncode': 0}
+[3.729221] (-) TimerEvent: {}
+[3.731877] (rosnav_driver) JobEnded: {'identifier': 'rosnav_driver', 'rc': 0}
+[3.734175] (-) EventReactorShutdown: {}

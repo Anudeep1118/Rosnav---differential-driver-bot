@@ -1,0 +1,6 @@
+flask==3.0.0
+flask-socketio==5.3.6
+pyserial==3.5
+eventlet==0.35.1
+# NOTE: do NOT install Werkzeug>=3.0 — flask-socketio requires <3.0
+Werkzeug==2.3.8

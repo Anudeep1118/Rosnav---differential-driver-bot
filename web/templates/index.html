@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RosNav Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+<style>
+:root {
+  --bg:      #080c10;
+  --bg1:     #0d1219;
+  --bg2:     #111820;
+  --bg3:     #1a2432;
+  --border:  #1e2e42;
+  --border2: #2a3f5a;
+  --accent:  #00e5ff;
+  --green:   #00ff88;
+  --red:     #ff3355;
+  --orange:  #ff8800;
+  --text:    #c8dff0;
+  --text2:   #6a8aaa;
+  --text3:   #3a5570;
+  --mono:    'Share Tech Mono', monospace;
+  --hud:     'Orbitron', sans-serif;
+  --body:    'DM Sans', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:1000}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.shell{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 14px 14px}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 0 12px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:36px;height:36px;border:2px solid var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 10px rgba(0,229,255,.3)}50%{box-shadow:0 0 24px rgba(0,229,255,.65)}}
+.logo h1{font-family:var(--hud);font-size:18px;font-weight:900;letter-spacing:3px;color:var(--accent);text-shadow:0 0 18px rgba(0,229,255,.5)}
+.logo span{font-family:var(--mono);font-size:9px;color:var(--text2);letter-spacing:2px}
+.hdr-right{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:1px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--text3);transition:all .3s}
+.dot.on{background:var(--green);box-shadow:0 0 8px var(--green)}
+.dot.off{background:var(--red);box-shadow:0 0 8px var(--red)}
+.dot.blink{animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.badge{font-family:var(--hud);font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 11px;border-radius:4px;border:1px solid var(--border2);color:var(--text2);transition:all .3s}
+.badge.teleop{color:var(--accent);border-color:var(--accent);box-shadow:0 0 10px rgba(0,229,255,.2)}
+.badge.waypoint{color:var(--green);border-color:var(--green);box-shadow:0 0 10px rgba(0,255,136,.2)}
+
+/* MAIN GRID */
+main{display:grid;grid-template-columns:260px 1fr 260px;gap:12px;padding:12px 0;align-items:start}
+@media(max-width:960px){main{grid-template-columns:1fr 1fr}.col-r{grid-column:1/-1}}
+@media(max-width:600px){main{grid-template-columns:1fr}}
+
+/* PANEL */
+.panel{background:var(--bg1);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.25}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 9px;border-bottom:1px solid var(--border)}
+.pt{font-family:var(--hud);font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--text2);text-transform:uppercase}
+.pb{padding:14px}
+.tag{font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:2px 7px;border-radius:3px;background:var(--bg3);border:1px solid var(--border);color:var(--text3)}
+
+/* MODE BUTTONS */
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
+.btn-m{font-family:var(--hud);font-size:10px;font-weight:700;letter-spacing:1.5px;padding:11px 6px;border:1px solid var(--border2);border-radius:7px;background:var(--bg2);color:var(--text2);cursor:pointer;transition:all .2s;text-transform:uppercase}
+.btn-m.at{border-color:var(--accent);color:var(--accent);background:rgba(0,229,255,.07)}
+.btn-m.ag{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.07)}
+.btn-estop{width:100%;font-family:var(--hud);font-size:12px;font-weight:900;letter-spacing:3px;padding:13px;border:2px solid var(--red);border-radius:7px;background:rgba(255,51,85,.08);color:var(--red);cursor:pointer;transition:all .15s;margin-top:4px}
+.btn-estop:hover{background:rgba(255,51,85,.2);box-shadow:0 0 18px rgba(255,51,85,.3)}
+
+/* TELEMETRY */
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ti{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:9px 11px}
+.ti.wide{grid-column:1/-1}
+.tl{font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
+.tv{font-family:var(--mono);font-size:17px;color:var(--accent);line-height:1;transition:color .2s}
+.tu{font-size:9px;color:var(--text2);margin-left:2px}
+
+/* COMPASS */
+.compass{width:72px;height:72px;border-radius:50%;border:1px solid var(--border2);position:relative;background:radial-gradient(circle,var(--bg3),var(--bg2));flex-shrink:0}
+.cn{position:absolute;left:50%;top:50%;width:2px;height:28px;background:linear-gradient(to bottom,var(--red) 50%,var(--accent) 50%);transform-origin:bottom center;transform:translateX(-50%) translateY(-100%) rotate(0deg);transition:transform .3s;border-radius:2px}
+.cc{position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:50%;background:var(--text);transform:translate(-50%,-50%);z-index:2}
+.cl{position:absolute;font-family:var(--mono);font-size:8px;color:var(--text3)}
+.cl.n{top:3px;left:50%;transform:translateX(-50%);color:var(--red)}
+.cl.s{bottom:3px;left:50%;transform:translateX(-50%)}
+.cl.e{right:4px;top:50%;transform:translateY(-50%)}
+.cl.w{left:4px;top:50%;transform:translateY(-50%)}
+
+/* BATTERY */
+.bbar-bg{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:5px}
+.bbar-fill{height:100%;border-radius:3px;transition:width .5s,background .5s;background:var(--green)}
+
+/* DPAD */
+.dpad-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:6px 0}
+.dpad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(3,64px);gap:5px}
+.db{display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;cursor:pointer;color:var(--text2);user-select:none;transition:all .1s}
+.db:active,.db.act{border-color:var(--accent);color:var(--accent);background:rgba(0,229,255,.1);box-shadow:0 0 14px rgba(0,229,255,.2);transform:scale(.96)}
+.db.cs{font-size:11px;font-family:var(--hud);font-weight:700;letter-spacing:1px}
+.db.cs:active{border-color:var(--red);color:var(--red);background:rgba(255,51,85,.1)}
+
+/* SLIDER */
+.sc{width:100%;display:flex;flex-direction:column;gap:5px;max-width:200px}
+.sl{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--text2);letter-spacing:1px}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--bg3);border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 7px rgba(0,229,255,.5)}
+
+/* MAP */
+.map-wrap{position:relative;width:100%;aspect-ratio:1;background:var(--bg2);border-radius:0 0 10px 10px;overflow:hidden}
+canvas#map{display:block;width:100%;height:100%}
+.map-btns{display:flex;gap:7px;padding:9px 14px}
+.btn-sm{font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:5px 10px;border:1px solid var(--border2);border-radius:5px;background:var(--bg2);color:var(--text2);cursor:pointer;transition:all .15s}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent)}
+
+/* WAYPOINTS */
+.wp-list{max-height:170px;overflow-y:auto;margin-bottom:9px;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.wp-item{display:flex;align-items:center;gap:7px;padding:6px 9px;border:1px solid var(--border);border-radius:6px;margin-bottom:4px;font-family:var(--mono);font-size:10px;color:var(--text2);background:var(--bg2)}
+.wp-item.cur{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.05)}
+.wp-n{font-size:8px;color:var(--text3);min-width:14px}
+.wp-del{margin-left:auto;cursor:pointer;color:var(--text3);font-size:13px;background:none;border:none;line-height:1;transition:color .15s}
+.wp-del:hover{color:var(--red)}
+.wp-row{display:grid;grid-template-columns:1fr 1fr auto;gap:5px;margin-top:7px}
+.inp{font-family:var(--mono);font-size:11px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:7px 9px;color:var(--text);outline:none;transition:border-color .15s;width:100%}
+.inp:focus{border-color:var(--accent)}
+.inp::placeholder{color:var(--text3)}
+.btn-add{font-size:18px;font-weight:700;width:34px;height:34px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);color:var(--accent);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.btn-add:hover{border-color:var(--accent);background:rgba(0,229,255,.1)}
+.btn-launch{width:100%;font-family:var(--hud);font-size:10px;font-weight:700;letter-spacing:2px;padding:10px;border:1px solid var(--green);border-radius:7px;background:rgba(0,255,136,.06);color:var(--green);cursor:pointer;transition:all .15s;margin-top:7px}
+.btn-launch:hover{background:rgba(0,255,136,.13);box-shadow:0 0 14px rgba(0,255,136,.2)}
+
+/* LOG */
+.log-wrap{font-family:var(--mono);font-size:9px;line-height:1.8;max-height:110px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.ll .ts{color:var(--text3);margin-right:6px}
+.ll.ok .msg{color:var(--green)}
+.ll.warn .msg{color:var(--orange)}
+.ll.err .msg{color:var(--red)}
+.ll.info .msg{color:var(--text2)}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:9px 0;display:flex;gap:18px;font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;flex-wrap:wrap}
+footer span{color:var(--text2)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🤖</div>
+    <div>
+      <h1>ROSNAV</h1>
+      <span>AUTONOMOUS NAVIGATION</span>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="stat"><div class="dot off" id="d-serial"></div>SERIAL</div>
+    <div class="stat"><div class="dot off" id="d-ros"></div>ROS2</div>
+    <div class="stat"><div class="dot on blink" id="d-ws"></div>WS</div>
+    <div class="badge idle" id="badge">IDLE</div>
+  </div>
+</header>
+
+<main>
+
+<!-- LEFT -->
+<div style="display:flex;flex-direction:column;gap:12px">
+
+  <div class="panel">
+    <div class="ph"><span class="pt">Mission Control</span><span class="tag">MODE</span></div>
+    <div class="pb">
+      <div class="mode-grid">
+        <button class="btn-m" id="bm-t" onclick="setMode('teleop')">🕹 TELEOP</button>
+        <button class="btn-m" id="bm-w" onclick="setMode('waypoint')">📍 AUTO</button>
+      </div>
+      <button class="btn-estop" onclick="eStop()">⬛ EMERGENCY STOP</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><span class="pt">Odometry</span><span class="tag">20 HZ</span></div>
+    <div class="pb">
+      <div class="tg">
+        <div class="ti"><div class="tl">POS X</div><div class="tv" id="t-x">0.000<span class="tu">m</span></div></div>
+        <div class="ti"><div class="tl">POS Y</div><div class="tv" id="t-y">0.000<span class="tu">m</span></div></div>
+        <div class="ti"><div class="tl">VEL LIN</div><div class="tv" id="t-vx">0.00<span class="tu">m/s</span></div></div>
+        <div class="ti"><div class="tl">VEL ANG</div><div class="tv" id="t-vz">0.00<span class="tu">r/s</span></div></div>
+        <div class="ti wide">
+          <div class="tl">HEADING</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+            <div class="tv" id="t-yaw">0.0<span class="tu">°</span></div>
+            <div class="compass">
+              <span class="cl n">N</span><span class="cl s">S</span>
+              <span class="cl e">E</span><span class="cl w">W</span>
+              <div class="cn" id="needle"></div>
+              <div class="cc"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><span class="pt">IMU — MPU6050</span><span class="tag">0x68</span></div>
+    <div class="pb">
+      <div class="tg">
+        <div class="ti"><div class="tl">ACCEL X</div><div class="tv" id="t-ax">0.000<span class="tu">g</span></div></div>
+        <div class="ti"><div class="tl">ACCEL Y</div><div class="tv" id="t-ay">0.000<span class="tu">g</span></div></div>
+        <div class="ti wide"><div class="tl">GYRO Z</div><div class="tv" id="t-gz">0.0<span class="tu">°/s</span></div></div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="sl"><span>BATTERY</span><span id="t-batt">100%</span></div>
+        <div class="bbar-bg"><div class="bbar-fill" id="bfill" style="width:100%"></div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /left -->
+
+<!-- CENTER -->
+<div style="display:flex;flex-direction:column;gap:12px">
+
+  <div class="panel">
+    <div class="ph"><span class="pt">Pose Map</span><span class="tag" id="map-sc">2.0m</span></div>
+    <div class="map-btns">
+      <button class="btn-sm" onclick="resetOdom()">↺ RESET</button>
+      <button class="btn-sm" onclick="clearTrail()">✕ TRAIL</button>
+      <button class="btn-sm" onclick="zoomIn()">＋</button>
+      <button class="btn-sm" onclick="zoomOut()">－</button>
+    </div>
+    <div class="map-wrap"><canvas id="map"></canvas></div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><span class="pt">Manual Control</span><span class="tag" id="tp-st">INACTIVE</span></div>
+    <div class="pb">
+      <div class="dpad-wrap">
+        <div class="dpad">
+          <div></div>
+          <button class="db" id="db-f" onmousedown="dp('fwd')" onmouseup="dr()" ontouchstart="dp('fwd')" ontouchend="dr()">↑</button>
+          <div></div>
+          <button class="db" id="db-l" onmousedown="dp('left')" onmouseup="dr()" ontouchstart="dp('left')" ontouchend="dr()">←</button>
+          <button class="db cs" onmousedown="dr()" onclick="dr()">STOP</button>
+          <button class="db" id="db-r" onmousedown="dp('right')" onmouseup="dr()" ontouchstart="dp('right')" ontouchend="dr()">→</button>
+          <div></div>
+          <button class="db" id="db-b" onmousedown="dp('rev')" onmouseup="dr()" ontouchstart="dp('rev')" ontouchend="dr()">↓</button>
+          <div></div>
+        </div>
+        <div class="sc">
+          <div class="sl"><span>LINEAR SPEED</span><span id="sl-v">0.30 m/s</span></div>
+          <input type="range" id="rng-v" min="5" max="50" value="30" oninput="updV(this.value)">
+          <div class="sl" style="margin-top:4px"><span>ANGULAR SPEED</span><span id="sl-w">0.80 r/s</span></div>
+          <input type="range" id="rng-w" min="10" max="150" value="80" oninput="updW(this.value)">
+        </div>
+      </div>
+      <div style="text-align:center;font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:5px">
+        KEYBOARD: W A S D · SPACE = STOP
+      </div>
+    </div>
+  </div>
+
+</div><!-- /center -->
+
+<!-- RIGHT -->
+<div class="col-r" style="display:flex;flex-direction:column;gap:12px">
+
+  <div class="panel">
+    <div class="ph"><span class="pt">Waypoint Queue</span><span class="tag" id="wp-cnt">0 PTS</span></div>
+    <div class="pb">
+      <div class="wp-list" id="wp-list">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-align:center;padding:18px 0">NO WAYPOINTS</div>
+      </div>
+      <div class="wp-row">
+        <input class="inp" type="number" id="wp-x" placeholder="X (m)" step="0.1">
+        <input class="inp" type="number" id="wp-y" placeholder="Y (m)" step="0.1">
+        <button class="btn-add" onclick="addWP()">+</button>
+      </div>
+      <button class="btn-launch" onclick="launchWP()">▶ EXECUTE WAYPOINTS</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><span class="pt">Serial Bridge</span><span class="tag" id="sp-tag">/dev/ttyUSB0</span></div>
+    <div class="pb">
+      <div class="tg" style="margin-bottom:9px">
+        <div class="ti"><div class="tl">BAUD</div><div class="tv" style="font-size:13px">115200</div></div>
+        <div class="ti"><div class="tl">UPTIME</div><div class="tv" style="font-size:13px" id="t-up">0s</div></div>
+      </div>
+      <div class="ti wide" style="background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:9px 11px">
+        <div class="tl">LAST CMD_VEL</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:4px" id="t-cv">lin: 0.000  ang: 0.000</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><span class="pt">System Log</span><button class="btn-sm" onclick="clrLog()" style="padding:3px 7px">CLR</button></div>
+    <div class="pb" style="padding:10px 12px">
+      <div class="log-wrap" id="log"></div>
+    </div>
+  </div>
+
+</div><!-- /right -->
+
+</main>
+
+<footer>
+  RosNav v1.0 · ROS2 Humble · RPi4 · STM32F103 · L298D · MPU6050 · <span id="ft-t">--:--:--</span>
+</footer>
+
+</div>
+
+<script>
+// ── SOCKET ────────────────────────────────────────────────
+const socket = io({transports:['websocket','polling']});
+socket.on('connect',    ()=>{ setDot('d-ws','on'); addLog('WebSocket connected','ok'); socket.emit('request_telemetry'); });
+socket.on('disconnect', ()=>{ setDot('d-ws','off'); addLog('WebSocket disconnected','err'); });
+socket.on('telemetry',  d=>updateTelem(d));
+socket.on('mode_change',d=>applyMode(d.mode));
+
+// ── STATE ─────────────────────────────────────────────────
+let mode='idle', linSpd=0.30, angSpd=0.80;
+let waypoints=[], trail=[], mapScale=2.0;
+let robX=0, robY=0, robYaw=0;
+
+// ── TELEMETRY ─────────────────────────────────────────────
+function updateTelem(d){
+  const o=d.odom||{}, imu=d.imu||{};
+  robX=o.x||0; robY=o.y||0; robYaw=o.yaw||0;
+
+  setH('t-x',  f(robX,3)+'<span class="tu">m</span>');
+  setH('t-y',  f(robY,3)+'<span class="tu">m</span>');
+  setH('t-vx', f(o.vx||0,2)+'<span class="tu">m/s</span>');
+  setH('t-vz', f(o.vz||0,2)+'<span class="tu">r/s</span>');
+
+  const deg=((robYaw*180/Math.PI)%360+360)%360;
+  setH('t-yaw', deg.toFixed(1)+'<span class="tu">°</span>');
+  document.getElementById('needle').style.transform=
+    `translateX(-50%) translateY(-100%) rotate(${robYaw*180/Math.PI}deg)`;
+
+  setH('t-ax', f(imu.ax||0,3)+'<span class="tu">g</span>');
+  setH('t-ay', f(imu.ay||0,3)+'<span class="tu">g</span>');
+  setH('t-gz', f(imu.gz||0,1)+'<span class="tu">°/s</span>');
+
+  const bt=d.battery||100;
+  document.getElementById('t-batt').textContent=bt.toFixed(0)+'%';
+  const fill=document.getElementById('bfill');
+  fill.style.width=bt+'%';
+  fill.style.background=bt>50?'var(--green)':bt>20?'var(--orange)':'var(--red)';
+
+  document.getElementById('t-up').textContent=fmtUp(d.uptime||0);
+  const cv=d.cmd_vel||{};
+  document.getElementById('t-cv').textContent=`lin: ${f(cv.linear||0,3)}  ang: ${f(cv.angular||0,3)}`;
+
+  setDot('d-serial', d.connected?'on':'off');
+  setDot('d-ros',    d.connected?'on':'off');
+
+  trail.push({x:robX,y:robY});
+  if(trail.length>800) trail.shift();
+  renderMap();
+
+  if(d.wp_index!==undefined) renderWPList(d.wp_index);
+}
+
+// ── MAP ───────────────────────────────────────────────────
+const cv=document.getElementById('map');
+const ctx=cv.getContext('2d');
+
+function resizeCv(){
+  const w=cv.parentElement.clientWidth;
+  cv.width=w; cv.height=w; renderMap();
+}
+window.addEventListener('resize',resizeCv);
+setTimeout(resizeCv,80);
+
+function w2c(wx,wy){
+  const W=cv.width, h=W/2;
+  return [h+(wx/mapScale)*h, h-(wy/mapScale)*h];
+}
+
+function renderMap(){
+  const W=cv.width; if(!W) return;
+  ctx.clearRect(0,0,W,W);
+  ctx.fillStyle='#0d1219'; ctx.fillRect(0,0,W,W);
+
+  // grid
+  const gp=(1.0/mapScale)*(W/2);
+  ctx.strokeStyle='rgba(30,46,66,.8)'; ctx.lineWidth=1;
+  for(let x=W/2%gp;x<W;x+=gp){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,W);ctx.stroke()}
+  for(let y=W/2%gp;y<W;y+=gp){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+
+  // axes
+  ctx.strokeStyle='rgba(0,229,255,.1)'; ctx.setLineDash([4,6]);
+  ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,W);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,W/2);ctx.lineTo(W,W/2);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // waypoint path
+  if(waypoints.length>1){
+    ctx.strokeStyle='rgba(0,255,136,.2)'; ctx.lineWidth=1.5; ctx.setLineDash([4,5]);
+    ctx.beginPath();
+    const [sx,sy]=w2c(waypoints[0].x,waypoints[0].y); ctx.moveTo(sx,sy);
+    waypoints.slice(1).forEach(wp=>{ const[px,py]=w2c(wp.x,wp.y); ctx.lineTo(px,py); });
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // waypoint markers
+  waypoints.forEach((wp,i)=>{
+    const[px,py]=w2c(wp.x,wp.y);
+    ctx.beginPath(); ctx.arc(px,py,5,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,255,136,.15)'; ctx.fill();
+    ctx.strokeStyle='#00ff88'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle='#00ff88'; ctx.font='9px Share Tech Mono,monospace';
+    ctx.fillText(i+1,px+7,py-4);
+  });
+
+  // trail
+  if(trail.length>1){
+    ctx.beginPath();
+    const[tx0,ty0]=w2c(trail[0].x,trail[0].y); ctx.moveTo(tx0,ty0);
+    trail.slice(1).forEach(p=>{ const[tx,ty]=w2c(p.x,p.y); ctx.lineTo(tx,ty); });
+    ctx.strokeStyle='rgba(0,229,255,.4)'; ctx.lineWidth=1.5; ctx.stroke();
+  }
+
+  // robot
+  const[rx,ry]=w2c(robX,robY);
+  const rs=Math.max(9,W*.028);
+  ctx.save(); ctx.translate(rx,ry); ctx.rotate(-robYaw);
+  ctx.beginPath(); ctx.rect(-rs*.7,-rs*.9,rs*1.4,rs*1.8);
+  ctx.fillStyle='rgba(0,229,255,.1)'; ctx.fill();
+  ctx.strokeStyle='#00e5ff'; ctx.lineWidth=2; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,-rs*1.1); ctx.lineTo(-rs*.4,-rs*.5); ctx.lineTo(rs*.4,-rs*.5);
+  ctx.closePath(); ctx.fillStyle='#00e5ff'; ctx.fill();
+  ctx.fillStyle='rgba(0,229,255,.4)';
+  ctx.fillRect(-rs*1.1,-rs*.6,rs*.32,rs*1.2);
+  ctx.fillRect(rs*.78,-rs*.6,rs*.32,rs*1.2);
+  ctx.restore();
+
+  document.getElementById('map-sc').textContent=mapScale.toFixed(1)+'m';
+}
+
+function zoomIn(){ mapScale=Math.max(.5,mapScale*.7); renderMap(); }
+function zoomOut(){ mapScale=Math.min(20,mapScale*1.4); renderMap(); }
+function clearTrail(){ trail=[]; renderMap(); }
+
+// ── MODE ──────────────────────────────────────────────────
+function setMode(m){
+  fetch('/api/mode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:m})})
+  .then(r=>r.json()).then(d=>{ applyMode(d.mode); addLog('Mode → '+d.mode.toUpperCase(),'ok'); })
+  .catch(()=>addLog('Mode change failed','err'));
+}
+
+function applyMode(m){
+  mode=m;
+  const b=document.getElementById('badge');
+  b.textContent=m.toUpperCase(); b.className='badge '+m;
+  document.getElementById('bm-t').className='btn-m'+(m==='teleop'?' at':'');
+  document.getElementById('bm-w').className='btn-m'+(m==='waypoint'?' ag':'');
+  document.getElementById('tp-st').textContent=m==='teleop'?'ACTIVE':'INACTIVE';
+}
+
+function eStop(){
+  socket.emit('emergency_stop',{});
+  addLog('EMERGENCY STOP sent','err');
+}
+
+// ── TELEOP ────────────────────────────────────────────────
+let dpInt=null;
+
+function dp(dir){
+  if(mode!=='teleop'){ addLog('Switch to TELEOP first','warn'); return; }
+  const map={fwd:[1,0],rev:[-1,0],left:[0,-1],right:[0,1]};
+  const[lf,af]=map[dir]||[0,0];
+  sendVel(lf*linSpd, af*angSpd);
+  const ids={fwd:'db-f',rev:'db-b',left:'db-l',right:'db-r'};
+  const el=document.getElementById(ids[dir]);
+  if(el) el.classList.add('act');
+  dpInt=setInterval(()=>sendVel(lf*linSpd,af*angSpd),80);
+}
+
+function dr(){
+  clearInterval(dpInt); dpInt=null;
+  sendVel(0,0);
+  document.querySelectorAll('.db').forEach(b=>b.classList.remove('act'));
+}
+
+function sendVel(l,a){ socket.emit('teleop',{linear:l,angular:a}); }
+
+function updV(v){ linSpd=v/100; document.getElementById('sl-v').textContent=linSpd.toFixed(2)+' m/s'; }
+function updW(v){ angSpd=v/100; document.getElementById('sl-w').textContent=angSpd.toFixed(2)+' r/s'; }
+
+// keyboard
+const keys=new Set();
+document.addEventListener('keydown',e=>{
+  if(['w','a','s','d',' '].includes(e.key.toLowerCase())){
+    e.preventDefault(); if(keys.has(e.key)) return;
+    keys.add(e.key); kbCtrl();
+  }
+});
+document.addEventListener('keyup',e=>{ keys.delete(e.key); kbCtrl(); });
+
+function kbCtrl(){
+  if(mode!=='teleop') return;
+  if(!keys.size||keys.has(' ')){ sendVel(0,0); return; }
+  let l=0,a=0;
+  if(keys.has('w')) l= linSpd;
+  if(keys.has('s')) l=-linSpd;
+  if(keys.has('a')) a=-angSpd;
+  if(keys.has('d')) a= angSpd;
+  sendVel(l,a);
+}
+
+// ── WAYPOINTS ─────────────────────────────────────────────
+function addWP(){
+  const x=parseFloat(document.getElementById('wp-x').value);
+  const y=parseFloat(document.getElementById('wp-y').value);
+  if(isNaN(x)||isNaN(y)){ addLog('Invalid coordinates','warn'); return; }
+  waypoints.push({x,y});
+  document.getElementById('wp-x').value='';
+  document.getElementById('wp-y').value='';
+  syncWP(); renderMap();
+  addLog(`WP ${waypoints.length}: (${x}, ${y})`,'info');
+}
+
+function syncWP(){
+  fetch('/api/waypoints',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({waypoints})});
+  document.getElementById('wp-cnt').textContent=waypoints.length+' PTS';
+  renderWPList(0);
+}
+
+function renderWPList(idx){
+  const el=document.getElementById('wp-list');
+  if(!waypoints.length){
+    el.innerHTML='<div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-align:center;padding:18px 0">NO WAYPOINTS</div>';
+    return;
+  }
+  el.innerHTML=waypoints.map((wp,i)=>`
+    <div class="wp-item ${i===idx&&mode==='waypoint'?'cur':''}">
+      <span class="wp-n">${i+1}</span>
+      <span>X:${wp.x.toFixed(2)}</span>
+      <span style="color:var(--text3)">|</span>
+      <span>Y:${wp.y.toFixed(2)}</span>
+      <button class="wp-del" onclick="rmWP(${i})">×</button>
+    </div>`).join('');
+}
+
+function rmWP(i){ waypoints.splice(i,1); syncWP(); renderMap(); }
+
+function launchWP(){
+  if(!waypoints.length){ addLog('No waypoints defined','warn'); return; }
+  syncWP(); setMode('waypoint');
+  addLog(`Auto-nav: ${waypoints.length} waypoints`,'ok');
+}
+
+function resetOdom(){
+  fetch('/api/odom/reset',{method:'POST'})
+  .then(()=>{ trail=[]; robX=robY=robYaw=0; renderMap(); addLog('Odometry reset','ok'); });
+}
+
+// ── LOG ───────────────────────────────────────────────────
+function addLog(msg,type='info'){
+  const log=document.getElementById('log');
+  const now=new Date();
+  const ts=`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const d=document.createElement('div');
+  d.className=`ll ${type}`;
+  d.innerHTML=`<span class="ts">${ts}</span><span class="msg">${msg}</span>`;
+  log.appendChild(d);
+  log.scrollTop=log.scrollHeight;
+  if(log.children.length>80) log.removeChild(log.firstChild);
+}
+function clrLog(){ document.getElementById('log').innerHTML=''; }
+
+// ── UTILS ─────────────────────────────────────────────────
+function f(v,d){ return parseFloat(v).toFixed(d); }
+function setH(id,h){ document.getElementById(id).innerHTML=h; }
+function pad(n){ return String(n).padStart(2,'0'); }
+function setDot(id,cls){
+  const d=document.getElementById(id);
+  d.className='dot '+cls;
+  if(cls==='on') d.classList.add('blink');
+}
+function fmtUp(s){
+  if(s<60) return s+'s';
+  if(s<3600) return Math.floor(s/60)+'m '+(s%60)+'s';
+  return Math.floor(s/3600)+'h '+Math.floor((s%3600)/60)+'m';
+}
+
+setInterval(()=>{
+  const n=new Date();
+  document.getElementById('ft-t').textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+},1000);
+
+addLog('RosNav Control ready','ok');
+addLog('Connecting to robot...','info');
+</script>
+</body>
+</html>

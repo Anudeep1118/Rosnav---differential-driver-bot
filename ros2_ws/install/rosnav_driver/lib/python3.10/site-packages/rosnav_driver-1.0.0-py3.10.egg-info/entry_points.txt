@@ -1,0 +1,4 @@
+[console_scripts]
+serial_bridge = rosnav_driver.serial_bridge:main
+waypoint_nav = rosnav_driver.waypoint_nav:main
+

@@ -1,0 +1,6 @@
+source;share/rosnav_driver/hook/pythonpath.ps1
+source;share/rosnav_driver/hook/pythonpath.dsv
+source;share/rosnav_driver/hook/pythonpath.sh
+source;share/rosnav_driver/hook/ament_prefix_path.ps1
+source;share/rosnav_driver/hook/ament_prefix_path.dsv
+source;share/rosnav_driver/hook/ament_prefix_path.sh
